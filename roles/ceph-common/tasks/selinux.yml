@@ -1,6 +1,6 @@
 ---
 - name: if selinux is not disabled
-  when: ansible_facts['selinux']['status'] == 'enabled'
+  when: ansible_facts['ansible_selinux']['status'] == 'enabled'
   block:
     - name: install policycoreutils-python
       package:
@@ -8,7 +8,7 @@
         state: present
       register: result
       until: result is succeeded
-      when: ansible_facts['distribution_major_version'] == '7'
+      when: ansible_facts['ansible_distribution_major_version'] == '7'
 
     - name: install python3-policycoreutils on RHEL 8
       package:
@@ -19,4 +19,4 @@
       when:
         - inventory_hostname in groups.get(nfs_group_name, [])
           or inventory_hostname in groups.get(rgwloadbalancer_group_name, [])
-        - ansible_facts['distribution_major_version'] == '8'
+        - ansible_facts['ansible_distribution_major_version'] == '8'

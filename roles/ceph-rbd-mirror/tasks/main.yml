@@ -18,7 +18,7 @@
         path: "/etc/systemd/system/ceph-rbd-mirror@.service.d/"
       when:
         - ceph_rbd_mirror_systemd_overrides is defined
-        - ansible_facts['service_mgr'] == 'systemd'
+        - ansible_facts['ansible_service_mgr'] == 'systemd'
 
     - name: add ceph-rbd-mirror systemd service overrides
       openstack.config_template.config_template:
@@ -28,7 +28,7 @@
         config_type: "ini"
       when:
         - ceph_rbd_mirror_systemd_overrides is defined
-        - ansible_facts['service_mgr'] == 'systemd'
+        - ansible_facts['ansible_service_mgr'] == 'systemd'
 
     - name: enable ceph-rbd-mirror.target
       systemd:

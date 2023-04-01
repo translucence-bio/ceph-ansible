@@ -1,6 +1,6 @@
 ---
 - name: config repository for Red Hat based OS
-  when: ansible_facts['os_family'] == 'RedHat'
+  when: ansible_facts['ansible_os_family'] == 'RedHat'
   block:
     - name: include installs/configure_redhat_repository_installation.yml
       include_tasks: installs/configure_redhat_repository_installation.yml
@@ -11,7 +11,7 @@
       when: ceph_origin == 'local'
 
 - name: config repository for Debian based OS
-  when: ansible_facts['os_family'] == 'Debian'
+  when: ansible_facts['ansible_os_family'] == 'Debian'
   block:
     - name: include installs/configure_debian_repository_installation.yml
       include_tasks: installs/configure_debian_repository_installation.yml
@@ -27,5 +27,5 @@
 - name: include installs/configure_suse_repository_installation.yml
   include_tasks: installs/configure_suse_repository_installation.yml
   when:
-    - ansible_facts['os_family'] == 'Suse'
+    - ansible_facts['ansible_os_family'] == 'Suse'
     - ceph_origin == 'repository'

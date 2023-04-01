@@ -1,7 +1,7 @@
 ---
 - name: set_fact root_device
   set_fact:
-    root_device: "{{ ansible_facts['mounts'] | selectattr('mount', 'match', '^/$') | map(attribute='device') | first }}"
+    root_device: "{{ ansible_facts['ansible_mounts'] | selectattr('mount', 'match', '^/$') | map(attribute='device') | first }}"
 
 - name: lvm_volumes variable's tasks related
   when:

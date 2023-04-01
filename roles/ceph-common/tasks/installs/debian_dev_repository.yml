@@ -1,7 +1,7 @@
 ---
 - name: fetch ceph debian development repository
   uri:
-    url: "https://shaman.ceph.com/api/repos/ceph/{{ ceph_dev_branch }}/{{ ceph_dev_sha1 }}/{{ ansible_facts['distribution'] | lower }}/{{ ansible_facts['distribution_release'] }}/repo?arch={{ ansible_facts['architecture'] }}"
+    url: "https://shaman.ceph.com/api/repos/ceph/{{ ceph_dev_branch }}/{{ ceph_dev_sha1 }}/{{ ansible_facts['ansible_distribution'] | lower }}/{{ ansible_facts['ansible_distribution_release'] }}/repo?arch={{ ansible_facts['ansible_architecture'] }}"
     return_content: yes
   register: ceph_dev_deb_repo
 

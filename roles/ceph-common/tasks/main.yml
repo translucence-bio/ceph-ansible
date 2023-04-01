@@ -6,23 +6,23 @@
 - name: include installs/install_redhat_packages.yml
   include_tasks: installs/install_redhat_packages.yml
   when:
-    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['ansible_os_family'] == 'RedHat'
     - (ceph_origin == 'repository' or ceph_origin == 'distro')
   tags: package-install
 
 - name: include installs/install_suse_packages.yml
   include_tasks: installs/install_suse_packages.yml
-  when: ansible_facts['os_family'] == 'Suse'
+  when: ansible_facts['ansible_os_family'] == 'Suse'
   tags: package-install
 
 - name: include installs/install_on_debian.yml
   include_tasks: installs/install_on_debian.yml
   tags: package-install
-  when: ansible_facts['os_family'] == 'Debian'
+  when: ansible_facts['ansible_os_family'] == 'Debian'
 
 - name: include_tasks installs/install_on_clear.yml
   include_tasks: installs/install_on_clear.yml
-  when: ansible_facts['os_family'] == 'ClearLinux'
+  when: ansible_facts['ansible_os_family'] == 'ClearLinux'
   tags: package-install
 
 - name: get ceph version
@@ -66,6 +66,6 @@
 - name: include selinux.yml
   include_tasks: selinux.yml
   when:
-    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['ansible_os_family'] == 'RedHat'
     - inventory_hostname in groups.get(nfs_group_name, [])
       or inventory_hostname in groups.get(rgwloadbalancer_group_name, [])

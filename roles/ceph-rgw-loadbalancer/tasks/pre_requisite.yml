@@ -36,8 +36,8 @@
 
 - name: selinux related tasks
   when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['selinux']['status'] == 'enabled'
+    - ansible_facts['ansible_os_family'] == 'RedHat'
+    - ansible_facts['ansible_selinux']['status'] == 'enabled'
   block:
     - name: set_fact rgw_ports
       set_fact:

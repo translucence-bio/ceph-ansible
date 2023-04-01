@@ -3,8 +3,8 @@
   when:
     - inventory_hostname in groups.get(osd_group_name, [])
     - lvmetad_disabled | default(False) | bool
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] | int == 7
+    - ansible_facts['ansible_os_family'] == 'RedHat'
+    - ansible_facts['ansible_distribution_major_version'] | int == 7
   block:
     - name: stop lvmetad
       service:
@@ -37,7 +37,7 @@
 
 - name: restore certificates selinux context
   when:
-    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['ansible_os_family'] == 'RedHat'
     - inventory_hostname in groups.get(mon_group_name, [])
       or inventory_hostname in groups.get(rgw_group_name, [])
   command: /usr/sbin/restorecon -RF /etc/pki/ca-trust/extracted

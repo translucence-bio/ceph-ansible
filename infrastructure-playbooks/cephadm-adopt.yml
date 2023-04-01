@@ -369,19 +369,19 @@
         CEPHADM_IMAGE: '{{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }}'
 
     - name: manage nodes with cephadm - ipv4
-      command: "{{ ceph_cmd }} orch host add {{ ansible_facts['nodename'] }} {{ ansible_facts['all_ipv4_addresses'] | ips_in_ranges(cephadm_mgmt_network.split(',')) | first }} {{ group_names | intersect(adopt_label_group_names) | join(' ') }}"
+      command: "{{ ceph_cmd }} orch host add {{ ansible_facts['ansible_nodename'] }} {{ ansible_facts['ansible_all_ipv4_addresses'] | ips_in_ranges(cephadm_mgmt_network.split(',')) | first }} {{ group_names | intersect(adopt_label_group_names) | join(' ') }}"
       changed_when: false
       delegate_to: '{{ groups[mon_group_name][0] }}'
       when: ip_version == 'ipv4'
 
     - name: manage nodes with cephadm - ipv6
-      command: "{{ ceph_cmd }} orch host add {{ ansible_facts['nodename'] }} {{ ansible_facts['all_ipv6_addresses'] | ips_in_ranges(cephadm_mgmt_network.split(',')) | last | ansible.utils.ipwrap }} {{ group_names | intersect(adopt_label_group_names) | join(' ') }}"
+      command: "{{ ceph_cmd }} orch host add {{ ansible_facts['ansible_nodename'] }} {{ ansible_facts['ansible_all_ipv6_addresses'] | ips_in_ranges(cephadm_mgmt_network.split(',')) | last | ansible.utils.ipwrap }} {{ group_names | intersect(adopt_label_group_names) | join(' ') }}"
       changed_when: false
       delegate_to: '{{ groups[mon_group_name][0] }}'
       when: ip_version == 'ipv6'
 
     - name: add ceph label for core component
-      command: "{{ ceph_cmd }} orch host label add {{ ansible_facts['nodename'] }} ceph"
+      command: "{{ ceph_cmd }} orch host label add {{ ansible_facts['ansible_nodename'] }} ceph"
       changed_when: false
       delegate_to: '{{ groups[mon_group_name][0] }}'
       when: inventory_hostname in groups.get(mon_group_name, []) or
@@ -482,7 +482,7 @@
 
         - name: set_fact rbd_cmd
           set_fact:
-            rbd_cmd: "{{ container_binary + ' run --rm --net=host -v /etc/ceph:/etc/ceph:z -v /var/lib/ceph:/var/lib/ceph:z -v /var/run/ceph:/var/run/ceph:z --entrypoint=rbd ' + ceph_docker_registry + '/' + ceph_docker_image + ':' + ceph_docker_image_tag if containerized_deployment | bool else 'ceph' }} --cluster {{ cluster }} -n client.rbd-mirror.{{ ansible_facts['hostname'] }} -k /etc/ceph/{{ cluster }}.client.rbd-mirror.{{ ansible_facts['hostname'] }}.keyring"
+            rbd_cmd: "{{ container_binary + ' run --rm --net=host -v /etc/ceph:/etc/ceph:z -v /var/lib/ceph:/var/lib/ceph:z -v /var/run/ceph:/var/run/ceph:z --entrypoint=rbd ' + ceph_docker_registry + '/' + ceph_docker_image + ':' + ceph_docker_image_tag if containerized_deployment | bool else 'ceph' }} --cluster {{ cluster }} -n client.rbd-mirror.{{ ansible_facts['ansible_hostname'] }} -k /etc/ceph/{{ cluster }}.client.rbd-mirror.{{ ansible_facts['ansible_hostname'] }}.keyring"
 
         - name: set_fact admin_rbd_cmd
           set_fact:
@@ -568,7 +568,7 @@
 
     - name: adopt mon daemon
       cephadm_adopt:
-        name: "mon.{{ ansible_facts['hostname'] }}"
+        name: "mon.{{ ansible_facts['ansible_hostname'] }}"
         cluster: "{{ cluster }}"
         image: "{{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }}"
         docker: "{{ true if container_binary == 'docker' else false }}"
@@ -576,7 +576,7 @@
         firewalld: "{{ true if configure_firewall | bool else false }}"
 
     - name: reset failed ceph-mon systemd unit
-      command: "systemctl reset-failed ceph-mon@{{ ansible_facts['hostname'] }}"  # noqa 303
+      command: "systemctl reset-failed ceph-mon@{{ ansible_facts['ansible_hostname'] }}"  # noqa 303
       changed_when: false
       failed_when: false
       when: containerized_deployment | bool
@@ -595,7 +595,7 @@
       changed_when: false
       register: ceph_health_raw
       until: >
-        ansible_facts['hostname'] in (ceph_health_raw.stdout | from_json)["quorum_names"]
+        ansible_facts['ansible_hostname'] in (ceph_health_raw.stdout | from_json)["quorum_names"]
       retries: "{{ health_mon_check_retries }}"
       delay: "{{ health_mon_check_delay }}"
       environment:
@@ -613,7 +613,7 @@
 
     - name: adopt mgr daemon
       cephadm_adopt:
-        name: "mgr.{{ ansible_facts['hostname'] }}"
+        name: "mgr.{{ ansible_facts['ansible_hostname'] }}"
         cluster: "{{ cluster }}"
         image: "{{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }}"
         docker: "{{ true if container_binary == 'docker' else false }}"
@@ -621,7 +621,7 @@
         firewalld: "{{ true if configure_firewall | bool else false }}"
 
     - name: reset failed ceph-mgr systemd unit
-      command: "systemctl reset-failed ceph-mgr@{{ ansible_facts['hostname'] }}"  # noqa 303
+      command: "systemctl reset-failed ceph-mgr@{{ ansible_facts['ansible_hostname'] }}"  # noqa 303
       changed_when: false
       failed_when: false
       when: containerized_deployment | bool
@@ -835,7 +835,7 @@
 
     - name: remove any legacy directories in /var/lib/ceph/mon (workaround)
       file:
-        path: "/var/lib/ceph/mon/{{ cluster }}-{{ ansible_facts['hostname'] }}"
+        path: "/var/lib/ceph/mon/{{ cluster }}-{{ ansible_facts['ansible_hostname'] }}"
         state: absent
 
     - name: waiting for clean pgs...
@@ -926,7 +926,7 @@
 
     - name: stop and disable ceph-mds systemd service
       service:
-        name: "ceph-mds@{{ ansible_facts['hostname'] }}"
+        name: "ceph-mds@{{ ansible_facts['ansible_hostname'] }}"
         state: stopped
         enabled: false
       failed_when: false
@@ -939,7 +939,7 @@
       failed_when: false
 
     - name: reset failed ceph-mds systemd unit
-      command: "systemctl reset-failed ceph-mds@{{ ansible_facts['hostname'] }}"  # noqa 303
+      command: "systemctl reset-failed ceph-mds@{{ ansible_facts['ansible_hostname'] }}"  # noqa 303
       changed_when: false
       failed_when: false
       when: containerized_deployment | bool
@@ -955,7 +955,7 @@
 
     - name: remove legacy ceph mds data
       file:
-        path: "/var/lib/ceph/mds/{{ cluster }}-{{ ansible_facts['hostname'] }}"
+        path: "/var/lib/ceph/mds/{{ cluster }}-{{ ansible_facts['ansible_hostname'] }}"
         state: absent
 
 - name: redeploy rgw daemons
@@ -982,7 +982,7 @@
         - name: store ssl certificate in kv store (not multisite)
           command: >
             {{ container_binary }} run --rm -i -v /etc/ceph:/etc/ceph:z --entrypoint=ceph {{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }} --cluster {{ cluster }}
-            config-key set rgw/cert/rgw.{{ ansible_facts['hostname'] }} -i -
+            config-key set rgw/cert/rgw.{{ ansible_facts['ansible_hostname'] }} -i -
           args:
             stdin: "{{ rgw_ssl_cert.content | b64decode }}"
             stdin_add_newline: no
@@ -995,7 +995,7 @@
         - name: store ssl certificate in kv store (multisite)
           command: >
             {{ container_binary }} run --rm -i -v /etc/ceph:/etc/ceph:z --entrypoint=ceph {{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }} --cluster {{ cluster }}
-            config-key set rgw/cert/rgw.{{ ansible_facts['hostname'] }}.{{ item.rgw_realm }}.{{ item.rgw_zone }}.{{ item.radosgw_frontend_port }} -i -
+            config-key set rgw/cert/rgw.{{ ansible_facts['ansible_hostname'] }}.{{ item.rgw_realm }}.{{ item.rgw_zone }}.{{ item.radosgw_frontend_port }} -i -
           args:
             stdin: "{{ rgw_ssl_cert.content | b64decode }}"
             stdin_add_newline: no
@@ -1009,8 +1009,8 @@
     - name: update the placement of radosgw hosts
       command: >
         {{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} --
-        ceph orch apply rgw {{ ansible_facts['hostname'] }}
-        --placement='count-per-host:{{ radosgw_num_instances }} {{ ansible_facts['nodename'] }}'
+        ceph orch apply rgw {{ ansible_facts['ansible_hostname'] }}
+        --placement='count-per-host:{{ radosgw_num_instances }} {{ ansible_facts['ansible_nodename'] }}'
         --port={{ radosgw_frontend_port }}
         {{ '--ssl' if radosgw_frontend_ssl_certificate else '' }}
       changed_when: false
@@ -1022,8 +1022,8 @@
     - name: update the placement of radosgw multisite hosts
       command: >
         {{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} --
-        ceph orch apply rgw {{ ansible_facts['hostname'] }}.{{ item.rgw_realm }}.{{ item.rgw_zone }}.{{ item.radosgw_frontend_port }}
-        --placement={{ ansible_facts['nodename'] }}
+        ceph orch apply rgw {{ ansible_facts['ansible_hostname'] }}.{{ item.rgw_realm }}.{{ item.rgw_zone }}.{{ item.radosgw_frontend_port }}
+        --placement={{ ansible_facts['ansible_nodename'] }}
         --realm={{ item.rgw_realm }} --zone={{ item.rgw_zone }}
         --port={{ item.radosgw_frontend_port }}
         {{ '--ssl' if radosgw_frontend_ssl_certificate else '' }}
@@ -1050,7 +1050,7 @@
 
     - name: stop and disable ceph-radosgw systemd service
       service:
-        name: "ceph-radosgw@rgw.{{ ansible_facts['hostname'] }}.{{ item.instance_name }}"
+        name: "ceph-radosgw@rgw.{{ ansible_facts['ansible_hostname'] }}.{{ item.instance_name }}"
         state: stopped
         enabled: false
       failed_when: false
@@ -1064,7 +1064,7 @@
       failed_when: false
 
     - name: reset failed ceph-radosgw systemd unit
-      command: "systemctl reset-failed ceph-radosgw@rgw.{{ ansible_facts['hostname'] }}.{{ item.instance_name }}"  # noqa 303
+      command: "systemctl reset-failed ceph-radosgw@rgw.{{ ansible_facts['ansible_hostname'] }}.{{ item.instance_name }}"  # noqa 303
       changed_when: false
       failed_when: false
       loop: '{{ rgw_instances }}'
@@ -1081,13 +1081,13 @@
 
     - name: remove legacy ceph radosgw data
       file:
-        path: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['hostname'] }}.{{ item.instance_name }}"
+        path: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['ansible_hostname'] }}.{{ item.instance_name }}"
         state: absent
       loop: '{{ rgw_instances }}'
 
     - name: remove legacy ceph radosgw directory
       file:
-        path: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['hostname'] }}"
+        path: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['ansible_hostname'] }}"
         state: absent
 
 - name: stop and remove legacy ceph nfs daemons
@@ -1117,13 +1117,13 @@
 
     - name: stop and disable ceph-nfs systemd service
       service:
-        name: "ceph-nfs@{{ ansible_facts['hostname'] }}"
+        name: "ceph-nfs@{{ ansible_facts['ansible_hostname'] }}"
         state: stopped
         enabled: false
       failed_when: false
 
     - name: reset failed ceph-nfs systemd unit
-      command: "systemctl reset-failed ceph-nfs@{{ ansible_facts['hostname'] }}"  # noqa 303
+      command: "systemctl reset-failed ceph-nfs@{{ ansible_facts['ansible_hostname'] }}"  # noqa 303
       changed_when: false
       failed_when: false
       when: containerized_deployment | bool
@@ -1138,18 +1138,18 @@
 
     - name: remove legacy ceph radosgw directory
       file:
-        path: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['hostname'] }}"
+        path: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['ansible_hostname'] }}"
         state: absent
 
     - name: create nfs ganesha cluster
-      command: "{{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} -- ceph nfs cluster create {{ ansible_facts['hostname'] }} {{ ansible_facts['hostname'] }}"
+      command: "{{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} -- ceph nfs cluster create {{ ansible_facts['ansible_hostname'] }} {{ ansible_facts['ansible_hostname'] }}"
       changed_when: false
       delegate_to: "{{ groups[mon_group_name][0] }}"
       environment:
         CEPHADM_IMAGE: '{{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }}'
 
     - name: create cephfs export
-      command: "{{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} -- ceph nfs export create cephfs {{ cephfs }} {{ ansible_facts['hostname'] }} {{ ceph_nfs_ceph_pseudo_path }} --squash {{ ceph_nfs_ceph_squash }}"
+      command: "{{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} -- ceph nfs export create cephfs {{ cephfs }} {{ ansible_facts['ansible_hostname'] }} {{ ceph_nfs_ceph_pseudo_path }} --squash {{ ceph_nfs_ceph_squash }}"
       changed_when: false
       delegate_to: "{{ groups[mon_group_name][0] }}"
       environment:
@@ -1157,7 +1157,7 @@
       when: nfs_file_gw | bool
 
     - name: create rgw export
-      command: "{{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} -- ceph nfs export create rgw --cluster-id {{ ansible_facts['hostname'] }} --pseudo-path {{ ceph_nfs_rgw_pseudo_path }} --user-id {{ ceph_nfs_rgw_user }} --squash {{ ceph_nfs_rgw_squash }}"
+      command: "{{ cephadm_cmd }} shell -k /etc/ceph/{{ cluster }}.client.admin.keyring --fsid {{ fsid }} -- ceph nfs export create rgw --cluster-id {{ ansible_facts['ansible_hostname'] }} --pseudo-path {{ ceph_nfs_rgw_pseudo_path }} --user-id {{ ceph_nfs_rgw_user }} --squash {{ ceph_nfs_rgw_squash }}"
       changed_when: false
       delegate_to: "{{ groups[mon_group_name][0] }}"
       environment:
@@ -1193,7 +1193,7 @@
 
     - name: stop and disable rbd-mirror systemd service
       service:
-        name: "ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['hostname'] }}"
+        name: "ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['ansible_hostname'] }}"
         state: stopped
         enabled: false
       failed_when: false
@@ -1206,7 +1206,7 @@
       failed_when: false
 
     - name: reset failed rbd-mirror systemd unit
-      command: "systemctl reset-failed ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['hostname'] }}"  # noqa 303
+      command: "systemctl reset-failed ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['ansible_hostname'] }}"  # noqa 303
       changed_when: false
       failed_when: false
       when: containerized_deployment | bool
@@ -1238,7 +1238,7 @@
 
     - name: stop and disable ceph-crash systemd service
       service:
-        name: "{{ 'ceph-crash@' + ansible_facts['hostname'] if containerized_deployment | bool else 'ceph-crash.service' }}"
+        name: "{{ 'ceph-crash@' + ansible_facts['ansible_hostname'] if containerized_deployment | bool else 'ceph-crash.service' }}"
         state: stopped
         enabled: false
       failed_when: false
@@ -1326,7 +1326,7 @@
 
         - name: adopt alertmanager daemon
           cephadm_adopt:
-            name: "alertmanager.{{ ansible_facts['hostname'] }}"
+            name: "alertmanager.{{ ansible_facts['ansible_hostname'] }}"
             cluster: "{{ cluster }}"
             image: "{{ alertmanager_container_image }}"
             docker: "{{ true if container_binary == 'docker' else false }}"
@@ -1380,7 +1380,7 @@
 
         - name: adopt prometheus daemon
           cephadm_adopt:
-            name: "prometheus.{{ ansible_facts['hostname'] }}"
+            name: "prometheus.{{ ansible_facts['ansible_hostname'] }}"
             cluster: "{{ cluster }}"
             image: "{{ prometheus_container_image }}"
             docker: "{{ true if container_binary == 'docker' else false }}"
@@ -1407,7 +1407,7 @@
 
         - name: adopt grafana daemon
           cephadm_adopt:
-            name: "grafana.{{ ansible_facts['hostname'] }}"
+            name: "grafana.{{ ansible_facts['ansible_hostname'] }}"
             cluster: "{{ cluster }}"
             image: "{{ grafana_container_image }}"
             docker: "{{ true if container_binary == 'docker' else false }}"

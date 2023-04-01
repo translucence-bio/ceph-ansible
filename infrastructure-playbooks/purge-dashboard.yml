@@ -148,7 +148,7 @@
         state: absent
       when:
         - not containerized_deployment | bool
-        - ansible_facts['os_family'] in ['RedHat', 'Suse']
+        - ansible_facts['ansible_os_family'] in ['RedHat', 'Suse']
 
     - name: remove data
       file:

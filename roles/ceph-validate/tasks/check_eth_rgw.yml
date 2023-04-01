@@ -2,7 +2,7 @@
 - name: "fail if {{ radosgw_interface }} does not exist on {{ inventory_hostname }}"
   fail:
     msg: "{{ radosgw_interface }} does not exist on {{ inventory_hostname }}"
-  when: radosgw_interface not in ansible_facts['interfaces']
+  when: radosgw_interface not in ansible_facts['ansible_interfaces']
 
 - name: "fail if {{ radosgw_interface }} is not active on {{ inventory_hostname }}"
   fail:

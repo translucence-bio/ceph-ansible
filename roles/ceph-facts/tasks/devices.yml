@@ -52,15 +52,15 @@
     device: "{{ item.key | regex_replace('^', '/dev/') }}"
   set_fact:
     devices: "{{ devices | default([]) | union([device]) }}"
-  with_dict: "{{ ansible_facts['devices'] }}"
+  with_dict: "{{ ansible_facts['ansible_devices'] }}"
   when:
     - osd_auto_discovery | default(False) | bool
-    - ansible_facts['devices'] is defined
+    - ansible_facts['ansible_devices'] is defined
     - item.value.removable == "0"
     - item.value.sectors != "0"
     - item.value.partitions|count == 0
     - item.value.holders|count == 0
-    - ansible_facts['mounts'] | selectattr('device', 'equalto', device) | list | length == 0
+    - ansible_facts['ansible_mounts'] | selectattr('device', 'equalto', device) | list | length == 0
     - item.key is not match osd_auto_discovery_exclude
     - device not in dedicated_devices | default([])
     - device not in bluestore_wal_devices | default([])

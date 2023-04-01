@@ -5,7 +5,7 @@
     state: present
   register: result
   until: result is succeeded
-  when: ansible_facts['distribution'] == 'RedHat'
+  when: ansible_facts['ansible_distribution'] == 'RedHat'
 
 - name: install centos dependencies
   yum:
@@ -13,7 +13,7 @@
     state: present
   register: result
   until: result is succeeded
-  when: ansible_facts['distribution'] == 'CentOS'
+  when: ansible_facts['ansible_distribution'] == 'CentOS'
 
 - name: install redhat ceph packages
   package:

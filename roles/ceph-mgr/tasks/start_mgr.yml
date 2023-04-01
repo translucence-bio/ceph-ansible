@@ -5,7 +5,7 @@
     path: "/etc/systemd/system/ceph-mgr@.service.d/"
   when:
     - ceph_mgr_systemd_overrides is defined
-    - ansible_facts['service_mgr'] == 'systemd'
+    - ansible_facts['ansible_service_mgr'] == 'systemd'
 
 - name: add ceph-mgr systemd service overrides
   openstack.config_template.config_template:
@@ -15,7 +15,7 @@
     config_type: "ini"
   when:
     - ceph_mgr_systemd_overrides is defined
-    - ansible_facts['service_mgr'] == 'systemd'
+    - ansible_facts['ansible_service_mgr'] == 'systemd'
 
 - name: include_tasks systemd.yml
   include_tasks: systemd.yml
@@ -30,7 +30,7 @@
 
 - name: systemd start mgr
   systemd:
-    name: ceph-mgr@{{ ansible_facts['hostname'] }}
+    name: ceph-mgr@{{ ansible_facts['ansible_hostname'] }}
     state: started
     enabled: yes
     masked: no

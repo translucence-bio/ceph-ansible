@@ -74,13 +74,13 @@
         - name: create backup directory
           become: false
           file:
-            path: "{{ backup_dir }}/{{ hostvars[target_node]['ansible_facts']['hostname'] }}"
+            path: "{{ backup_dir }}/{{ hostvars[target_node]['ansible_facts']['ansible_hostname'] }}"
             state: directory
 
         - name: backup files
           fetch:
             src: "{{ tmp_dir.path }}/backup{{ item | replace('/', '-') }}.tar"
-            dest: "{{ backup_dir }}/{{ hostvars[target_node]['ansible_facts']['hostname'] }}/backup{{ item | replace('/', '-') }}.tar"
+            dest: "{{ backup_dir }}/{{ hostvars[target_node]['ansible_facts']['ansible_hostname'] }}/backup{{ item | replace('/', '-') }}.tar"
             flat: yes
           loop:
             - /etc/ceph
@@ -98,7 +98,7 @@
       block:
         - name: unarchive files
           ansible.builtin.unarchive:
-            src: "{{ backup_dir }}/{{ hostvars[target_node]['ansible_facts']['hostname'] }}/backup{{ item | replace('/', '-') }}.tar"
+            src: "{{ backup_dir }}/{{ hostvars[target_node]['ansible_facts']['ansible_hostname'] }}/backup{{ item | replace('/', '-') }}.tar"
             dest: "{{ item | dirname }}"
           loop:
             - /etc/ceph
