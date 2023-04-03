@@ -527,7 +527,7 @@ rgw_zone: default
 #   global:
 #     foo: 1234
 #     bar: 5678
-#   "client.rgw.{{ hostvars[groups.get(rgw_group_name)[0]]['ansible_facts']['ansible_hostname'] }}":
+#   "client.rgw.{{ hostvars[groups.get(rgw_group_name)[0]]['ansible_facts']['hostname'] }}":
 #     rgw_zone: zone1
 #
 ceph_conf_overrides: {}

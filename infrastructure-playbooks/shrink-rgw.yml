@@ -95,7 +95,7 @@
       set_fact:
         rgw_host: '{{ item }}'
       with_items: '{{ groups[rgw_group_name] }}'
-      when: hostvars[item]['ansible_facts']['ansible_hostname'] == rgw_to_kill.split('.')[0]
+      when: hostvars[item]['ansible_facts']['hostname'] == rgw_to_kill.split('.')[0]
 
     - name: stop rgw service
       service:

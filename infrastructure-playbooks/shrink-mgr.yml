@@ -84,7 +84,7 @@
 
     - name: set_fact mgr_to_kill_hostname
       set_fact:
-        mgr_to_kill_hostname: "{{ hostvars[mgr_to_kill]['ansible_facts']['ansible_hostname'] }}"
+        mgr_to_kill_hostname: "{{ hostvars[mgr_to_kill]['ansible_facts']['hostname'] }}"
 
     - name: exit playbook, if the selected manager is not present in the cluster
       fail:

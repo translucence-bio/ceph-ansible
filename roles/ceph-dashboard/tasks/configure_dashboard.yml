@@ -7,7 +7,7 @@
 
 - name: set_fact container_exec_cmd
   set_fact:
-    container_exec_cmd: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['ansible_hostname'] }}"
+    container_exec_cmd: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['hostname'] }}"
   when: containerized_deployment | bool
 
 - name: set_fact container_run_cmd
@@ -90,7 +90,7 @@
           set_fact:
             subj_alt_names: >
               {% for host in groups[mgr_group_name] | default(groups[mon_group_name]) -%}
-              DNS:{{ hostvars[host]['ansible_facts']['ansible_hostname'] }},DNS:{{ hostvars[host]['ansible_facts']['ansible_fqdn'] }},IP:{{ hostvars[host]['dashboard_server_addr'] }}{% if not loop.last %},{% endif %}
+              DNS:{{ hostvars[host]['ansible_facts']['hostname'] }},DNS:{{ hostvars[host]['ansible_facts']['ansible_fqdn'] }},IP:{{ hostvars[host]['dashboard_server_addr'] }}{% if not loop.last %},{% endif %}
               {%- endfor -%}
 
         - name: create tempfile for openssl certificate and key generation
@@ -168,7 +168,7 @@
   failed_when: false # Do not fail if the option does not exist, it only exists post-14.2.0
 
 - name: config the current dashboard backend
-  command: "{{ container_exec_cmd }} ceph --cluster {{ cluster }} config set mgr mgr/dashboard/{{ hostvars[item]['ansible_facts']['ansible_hostname'] }}/server_addr {{ hostvars[item]['dashboard_server_addr'] }}"
+  command: "{{ container_exec_cmd }} ceph --cluster {{ cluster }} config set mgr mgr/dashboard/{{ hostvars[item]['ansible_facts']['hostname'] }}/server_addr {{ hostvars[item]['dashboard_server_addr'] }}"
   delegate_to: "{{ groups[mon_group_name][0] }}"
   changed_when: false
   run_once: true

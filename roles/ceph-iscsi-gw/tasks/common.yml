@@ -55,7 +55,7 @@
 
 - name: set_fact container_exec_cmd
   set_fact:
-    container_exec_cmd: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['ansible_hostname'] }}"
+    container_exec_cmd: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['hostname'] }}"
   delegate_to: "{{ groups[mon_group_name][0] }}"
   when: containerized_deployment | bool
 

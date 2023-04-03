@@ -287,7 +287,7 @@
           register: ceph_health_raw
           until:
             - ceph_health_raw.rc == 0
-            - (hostvars[inventory_hostname]['ansible_facts']['ansible_hostname'] in (ceph_health_raw.stdout | default('{}') |  from_json)["quorum_names"] or
+            - (hostvars[inventory_hostname]['ansible_facts']['hostname'] in (ceph_health_raw.stdout | default('{}') |  from_json)["quorum_names"] or
               hostvars[inventory_hostname]['ansible_facts']['ansible_fqdn'] in (ceph_health_raw.stdout | default('{}') | from_json)["quorum_names"])
           retries: "{{ health_mon_check_retries }}"
           delay: "{{ health_mon_check_delay }}"
@@ -299,7 +299,7 @@
           register: ceph_health_raw
           until:
             - ceph_health_raw.rc == 0
-            - (hostvars[inventory_hostname]['ansible_facts']['ansible_hostname'] in (ceph_health_raw.stdout | default('{}') | from_json)["quorum_names"] or
+            - (hostvars[inventory_hostname]['ansible_facts']['hostname'] in (ceph_health_raw.stdout | default('{}') | from_json)["quorum_names"] or
               hostvars[inventory_hostname]['ansible_facts']['ansible_fqdn'] in (ceph_health_raw.stdout | default('{}') | from_json)["quorum_names"])
           retries: "{{ health_mon_check_retries }}"
           delay: "{{ health_mon_check_delay }}"
@@ -502,7 +502,7 @@
 
     - name: set_fact container_exec_cmd_osd
       set_fact:
-        container_exec_cmd_update_osd: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['ansible_hostname'] }}"
+        container_exec_cmd_update_osd: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['hostname'] }}"
       when: containerized_deployment | bool
 
     - name: stop ceph osd
@@ -656,7 +656,7 @@
               set_fact:
                 mds_active_host: "{{ [hostvars[item]['inventory_hostname']] }}"
               with_items: "{{ groups[mds_group_name] }}"
-              when: hostvars[item]['ansible_facts']['ansible_hostname'] == mds_active_name
+              when: hostvars[item]['ansible_facts']['hostname'] == mds_active_name
 
             - name: create standby_mdss group
               add_host:
@@ -668,7 +668,7 @@
 
             - name: stop standby ceph mds
               systemd:
-                name: "ceph-mds@{{ hostvars[item]['ansible_facts']['ansible_hostname'] }}"
+                name: "ceph-mds@{{ hostvars[item]['ansible_facts']['hostname'] }}"
                 state: stopped
                 enabled: no
               delegate_to: "{{ item }}"
@@ -679,7 +679,7 @@
             # somehow, having a single task doesn't work in containerized context
             - name: mask systemd units for standby ceph mds
               systemd:
-                name: "ceph-mds@{{ hostvars[item]['ansible_facts']['ansible_hostname'] }}"
+                name: "ceph-mds@{{ hostvars[item]['ansible_facts']['hostname'] }}"
                 masked: yes
               delegate_to: "{{ item }}"
               with_items: "{{ groups['standby_mdss'] }}"
@@ -1050,7 +1050,7 @@
         tasks_from: container_binary.yml
 
     - name: container | disallow pre-reef OSDs and enable all new reef-only functionality
-      command: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['ansible_hostname'] }} ceph --cluster {{ cluster }} osd require-osd-release reef"
+      command: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['hostname'] }} ceph --cluster {{ cluster }} osd require-osd-release reef"
       delegate_to: "{{ groups[mon_group_name][0] }}"
       run_once: True
       when:
@@ -1210,7 +1210,7 @@
 
     - name: set_fact container_exec_cmd_status
       set_fact:
-        container_exec_cmd_status: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['ansible_hostname'] }}"
+        container_exec_cmd_status: "{{ container_binary }} exec ceph-mon-{{ hostvars[groups[mon_group_name][0]]['ansible_facts']['hostname'] }}"
       when: containerized_deployment | bool
 
     - name: show ceph status

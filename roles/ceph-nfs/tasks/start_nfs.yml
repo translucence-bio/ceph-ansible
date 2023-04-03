@@ -8,7 +8,7 @@
 
   - name: set_fact exec_cmd_nfs - internal
     set_fact:
-      exec_cmd_nfs: "{{ container_binary + ' exec ceph-mon-' + hostvars[groups[mon_group_name][0]]['ansible_facts']['ansible_hostname'] if containerized_deployment | bool else '' }} rados"
+      exec_cmd_nfs: "{{ container_binary + ' exec ceph-mon-' + hostvars[groups[mon_group_name][0]]['ansible_facts']['hostname'] if containerized_deployment | bool else '' }} rados"
       delegate_node: "{{ groups[mon_group_name][0] }}"
     when: groups.get(mon_group_name, []) | length > 0
 
