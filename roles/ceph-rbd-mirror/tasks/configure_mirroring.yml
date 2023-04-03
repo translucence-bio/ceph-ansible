@@ -54,15 +54,15 @@
         CEPH_CONTAINER_BINARY: "{{ container_binary }}"
       delegate_to: "{{ groups.get(mon_group_name)[0] }}"
       loop:
-        - { name: "client.rbd-mirror.{{ ansible_facts['ansible_hostname'] }}",
-            dest: "/etc/ceph/{{ cluster }}.client.rbd-mirror.{{ ansible_facts['ansible_hostname'] }}.keyring" }
+        - { name: "client.rbd-mirror.{{ ansible_facts['hostname'] }}",
+            dest: "/etc/ceph/{{ cluster }}.client.rbd-mirror.{{ ansible_facts['hostname'] }}.keyring" }
         - { name: "{{ ceph_rbd_mirror_local_user }}",
             dest: "/etc/ceph/{{ cluster }}.{{ ceph_rbd_mirror_local_user }}.keyring",
             secret: "{{ ceph_rbd_mirror_local_user_secret | default('') }}" }
 
-    - name: get "client.rbd-mirror.{{ ansible_facts['ansible_hostname'] }}" from ceph monitor
+    - name: get "client.rbd-mirror.{{ ansible_facts['hostname'] }}" from ceph monitor
       ceph_key:
-        name: "client.rbd-mirror.{{ ansible_facts['ansible_hostname'] }}"
+        name: "client.rbd-mirror.{{ ansible_facts['hostname'] }}"
         cluster: "{{ cluster }}"
         output_format: plain
         state: info
@@ -75,7 +75,7 @@
 
     - name: copy ceph key
       copy:
-        dest: "/etc/ceph/{{ cluster }}.client.rbd-mirror.{{ ansible_facts['ansible_hostname'] }}.keyring"
+        dest: "/etc/ceph/{{ cluster }}.client.rbd-mirror.{{ ansible_facts['hostname'] }}.keyring"
         content: "{{ _rbd_mirror_key.stdout + '\n' }}"
         owner: "{{ ceph_uid if containerized_deployment | bool else 'ceph' }}"
         group: "{{ ceph_uid if containerized_deployment | bool else 'ceph' }}"
@@ -84,7 +84,7 @@
 
 - name: start and add the rbd-mirror service instance
   service:
-    name: "ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['ansible_hostname'] }}"
+    name: "ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['hostname'] }}"
     state: started
     enabled: yes
     masked: no

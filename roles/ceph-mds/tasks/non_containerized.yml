@@ -22,7 +22,7 @@
 
 - name: create mds keyring
   ceph_key:
-    name: "mds.{{ ansible_facts['ansible_hostname'] }}"
+    name: "mds.{{ ansible_facts['hostname'] }}"
     cluster: "{{ cluster }}"
     user: client.bootstrap-mds
     user_key: "/var/lib/ceph/bootstrap-mds/{{ cluster }}.keyring"
@@ -30,7 +30,7 @@
       mon: "allow profile mds"
       mds: "allow"
       osd: "allow rwx"
-    dest: "/var/lib/ceph/mds/{{ cluster }}-{{ ansible_facts['ansible_hostname'] }}/keyring"
+    dest: "/var/lib/ceph/mds/{{ cluster }}-{{ ansible_facts['hostname'] }}/keyring"
     import_key: false
     owner: ceph
     group: ceph
@@ -58,7 +58,7 @@
 
 - name: start and add that the metadata service to the init sequence
   service:
-    name: ceph-mds@{{ ansible_facts['ansible_hostname'] }}
+    name: ceph-mds@{{ ansible_facts['hostname'] }}
     state: started
     enabled: yes
     masked: no

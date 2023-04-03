@@ -38,7 +38,7 @@
   set_fact:
     ceph_release: "{{ ceph_stable_release }}"
 
-- name: set_fact monitor_name ansible_facts['ansible_hostname']
+- name: set_fact monitor_name ansible_facts['hostname']
   set_fact:
     monitor_name: "{{ hostvars[item]['ansible_facts']['ansible_hostname'] }}"
   delegate_to: "{{ item }}"
@@ -202,7 +202,7 @@
 
     - name: set_fact rgw_hostname
       set_fact:
-        rgw_hostname: "{% set _value = ansible_facts['ansible_hostname'] -%}
+        rgw_hostname: "{% set _value = ansible_facts['hostname'] -%}
         {% for key in (ceph_current_status['services']['rgw']['daemons'] | list) -%}
         {% if key == ansible_facts['ansible_fqdn'] -%}
         {% set _value = key -%}

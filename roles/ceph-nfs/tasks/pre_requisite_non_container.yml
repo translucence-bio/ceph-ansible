@@ -35,7 +35,7 @@
   with_items:
     - { name: "/var/lib/ceph/bootstrap-rgw", create: "{{ nfs_obj_gw }}" }
     - { name: "/var/lib/ceph/radosgw", create: "{{ nfs_obj_gw }}" }
-    - { name: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['ansible_hostname'] }}", create: "{{ nfs_obj_gw }}" }
+    - { name: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['hostname'] }}", create: "{{ nfs_obj_gw }}" }
     - { name: "{{ rbd_client_admin_socket_path }}", create: "{{ nfs_obj_gw }}" }
     - { name: "/var/log/ceph", create: true }
     - { name: "/var/log/ganesha", create: true, owner: root, group: root }
@@ -82,14 +82,14 @@
       block:
         - name: create rados gateway keyring
           ceph_key:
-            name: "client.rgw.{{ ansible_facts['ansible_hostname'] }}"
+            name: "client.rgw.{{ ansible_facts['hostname'] }}"
             cluster: "{{ cluster }}"
             user: client.bootstrap-rgw
             user_key: "/var/lib/ceph/bootstrap-rgw/{{ cluster }}.keyring"
             caps:
               mon: "allow rw"
               osd: "allow rwx"
-            dest: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['ansible_hostname'] }}/keyring"
+            dest: "/var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ ansible_facts['hostname'] }}/keyring"
             import_key: false
             owner: ceph
             group: ceph

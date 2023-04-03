@@ -118,11 +118,11 @@
 
     - name: stop ceph nfss with systemd
       service:
-        name: "{{ 'ceph-nfs@' + ansible_facts['ansible_hostname'] if containerized_deployment | bool else 'nfs-ganesha' }}"
+        name: "{{ 'ceph-nfs@' + ansible_facts['hostname'] if containerized_deployment | bool else 'nfs-ganesha' }}"
         state: stopped
       failed_when: false
 
-    - name: remove ceph nfs directories for "{{ ansible_facts['ansible_hostname'] }}"
+    - name: remove ceph nfs directories for "{{ ansible_facts['hostname'] }}"
       file:
         path: "{{ item }}"
         state: absent
@@ -241,7 +241,7 @@
   tasks:
     - name: stop ceph mdss with systemd
       service:
-        name: ceph-mds@{{ ansible_facts['ansible_hostname'] }}
+        name: ceph-mds@{{ ansible_facts['hostname'] }}
         state: stopped
         enabled: no
       failed_when: false
@@ -262,7 +262,7 @@
   tasks:
     - name: stop ceph mgrs with systemd
       service:
-        name: ceph-mgr@{{ ansible_facts['ansible_hostname'] }}
+        name: ceph-mgr@{{ ansible_facts['hostname'] }}
         state: stopped
         enabled: no
       failed_when: false
@@ -303,7 +303,7 @@
 
     - name: stop ceph rgws with systemd
       service:
-        name: "ceph-radosgw@rgw.{{ ansible_facts['ansible_hostname'] }}.{{ item.instance_name }}"
+        name: "ceph-radosgw@rgw.{{ ansible_facts['hostname'] }}.{{ item.instance_name }}"
         state: stopped
         enabled: no
       failed_when: false
@@ -325,7 +325,7 @@
   tasks:
     - name: stop ceph rbd mirror with systemd
       service:
-        name: "ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['ansible_hostname'] }}"
+        name: "ceph-rbd-mirror@rbd-mirror.{{ ansible_facts['hostname'] }}"
         state: stopped
         enabled: no
       failed_when: false
@@ -637,7 +637,7 @@
   tasks:
     - name: stop ceph mons with systemd
       service:
-        name: "ceph-{{ item }}@{{ ansible_facts['ansible_hostname'] }}"
+        name: "ceph-{{ item }}@{{ ansible_facts['hostname'] }}"
         state: stopped
         enabled: no
       failed_when: false
@@ -681,13 +681,13 @@
 
     - name: stop ceph-crash service
       service:
-        name: "{{ 'ceph-crash@' + ansible_facts['ansible_hostname'] if containerized_deployment | bool else 'ceph-crash.service' }}"
+        name: "{{ 'ceph-crash@' + ansible_facts['hostname'] if containerized_deployment | bool else 'ceph-crash.service' }}"
         state: stopped
         enabled: no
       failed_when: false
 
     - name: systemctl reset-failed ceph-crash  # noqa 303
-      command: "systemctl reset-failed {{ 'ceph-crash@' + ansible_facts['ansible_hostname'] if containerized_deployment | bool else 'ceph-crash.service' }}"
+      command: "systemctl reset-failed {{ 'ceph-crash@' + ansible_facts['hostname'] if containerized_deployment | bool else 'ceph-crash.service' }}"
       changed_when: false
       failed_when: false
 
@@ -1074,7 +1074,7 @@
     - name: purge ceph directories - containerized deployments
       when: containerized_deployment | bool
       block:
-        - name: purge ceph directories for "{{ ansible_facts['ansible_hostname'] }}" and ceph socket
+        - name: purge ceph directories for "{{ ansible_facts['hostname'] }}" and ceph socket
           file:
             path: "{{ item }}"
             state: absent

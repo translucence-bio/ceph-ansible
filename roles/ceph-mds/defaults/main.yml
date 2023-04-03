@@ -25,7 +25,7 @@ ceph_mds_docker_cpu_limit: 4
 # we currently for MDS_NAME to hostname because of a bug in ceph-docker
 # fix here: https://github.com/ceph/ceph-docker/pull/770
 # this will go away soon.
-ceph_mds_docker_extra_env: -e MDS_NAME={{ ansible_facts['ansible_hostname'] }}
+ceph_mds_docker_extra_env: -e MDS_NAME={{ ansible_facts['hostname'] }}
 ceph_config_keys: [] # DON'T TOUCH ME
 
 
